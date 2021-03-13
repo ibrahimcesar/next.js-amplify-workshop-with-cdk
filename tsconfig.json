@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSourceMap": true,
+    "lib": [
+      "es2020"
+    ],
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "strict": true,
+    "target": "ES6",
+    "skipLibCheck": true,
+    "noEmit": true,
+    "module": "commonjs",
+    "isolatedModules": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve"
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "deploy"
+  ]
+}

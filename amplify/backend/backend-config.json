@@ -1,0 +1,41 @@
+{
+  "api": {
+    "NextBlog": {
+      "service": "AppSync",
+      "providerPlugin": "awscloudformation",
+      "output": {
+        "authConfig": {
+          "defaultAuthentication": {
+            "authenticationType": "API_KEY",
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 365,
+              "description": "public"
+            }
+          },
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authamplifynext78b134f6"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "auth": {
+    "amplifynext78b134f6": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  },
+  "storage": {
+    "coverImage": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
+  }
+}
