@@ -1,4 +1,4 @@
-# Full Stack Cloud with Next.js, Tailwin, and AWS CDK
+# Full Stack Cloud SSR with Next.js, Tailwin, and AWS CDK
 
 ## First things first 🌟
 
