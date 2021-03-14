@@ -89,6 +89,7 @@ Then you’ll need to create a `tsconfig.json` in your project because we’ll u
 Your `tsconfig.json` should look like this:
 
 ```json
+
 {
   “compilerOptions”: 
     “alwaysStrict”: true,
@@ -117,6 +118,7 @@ Your `tsconfig.json` should look like this:
   “include”: [
     “deploy
 }
+
 ```
 
 Not all of this configuration is really needed, but I basically use a boilerplate for all my projects and simply decided to not cherry pick and test every option. Then we need to create special file to CDK pickup about our stack that must be named`cdk.json`:
