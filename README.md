@@ -89,43 +89,42 @@ Then you’ll need to create a `tsconfig.json` in your project because we’ll u
 Your `tsconfig.json` should look like this:
 
 ```json
-
 {
-  “compilerOptions”: 
-    “alwaysStrict”: true,
-    “downlevelIteration”: true,
-    “esModuleInterop”: true,
-    “forceConsistentCasingInFileNames”: true,
-    “inlineSourceMap”: true,
-    “lib”: [
-      “es2020”
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSourceMap": true,
+    "lib": [
+      "es2020"
     ],
-    “moduleResolution”: “node”,
-    “noEmitOnError”: true,
-    “strict”: true,
-    “target”: “ES6”,
-    “skipLibCheck”: true,
-    “noEmit”: true,
-    “module”: “commonjs”,
-    “isolatedModules”: true,
-    “allowJs”: true,
-    “resolveJsonModule”: true,
-    “jsx”: “preserve”
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "strict": true,
+    "target": "ES6",
+    "skipLibCheck": true,
+    "noEmit": true,
+    "module": "commonjs",
+    "isolatedModules": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve"
   },
-  “exclude”: [
-    “node_modules”
+  "exclude": [
+    "node_modules"
   ],
-  “include”: [
-    “deploy
+  "include": [
+    "deploy"
+  ]
 }
-
 ```
 
 Not all of this configuration is really needed, but I basically use a boilerplate for all my projects and simply decided to not cherry pick and test every option. Then we need to create special file to CDK pickup about our stack that must be named`cdk.json`:
 
 ```json
 {
-  “app”: “npx ts-node deploy/bin.ts”
+  "app": "npx ts-node deploy/bin.ts"
 }
 ```
 
