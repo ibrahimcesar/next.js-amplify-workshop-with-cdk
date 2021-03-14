@@ -1,5 +1,4 @@
 import * as cdk from "@aws-cdk/core";
-import { Duration } from "@aws-cdk/core";
 import { NextJSLambdaEdge } from "@sls-next/cdk-construct";
 import { Runtime } from "@aws-cdk/aws-lambda";
 
@@ -14,6 +13,7 @@ export class NextStack extends cdk.Stack {
         imageCache: `ImageCache-${id}`,
         lambdaCache: `LambdaCache-${id}`
       },
+      description: `${id} : Functions Lambda@Edge for the application`,
       memory: 1024,
       name: {
         imageLambda: `ImageLambda-${id}`,
@@ -21,9 +21,7 @@ export class NextStack extends cdk.Stack {
         apiLambda: `ApiLambda-${id}`
       },
       runtime: Runtime.NODEJS_12_X,
-      timeout: Duration.seconds(30),
-      withLogging: true,
-      
+      withLogging: true, 
     });
   }
 }

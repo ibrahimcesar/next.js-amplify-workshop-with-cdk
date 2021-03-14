@@ -6,7 +6,63 @@ Most of the work here was created by [Nader Dabit](https://twitter.com/dabit3) a
 
 I highly recommend [follow along the video](https://www.youtube.com/watch?v=13nYLmjZ0Ys) and [checkout the repository with all the code and a very complete descriptions step by step](https://github.com/dabit3/next.js-amplify-workshop), introducing to Amplify, NextJS and several other products/ tools / managed services like AppSync and Cognito.
 
-Stop at [Deployment with Serverless Framework](https://github.com/dabit3/next.js-amplify-workshop#deployment-with-serverless-framework). That's where I'll picked up to show how make this deploy "AWS native" with [AWS CDK](https://aws.amazon.com/pt/cdk/).
+Stop at [Deployment with Serverless Framework](https://github.com/dabit3/next.js-amplify-workshop#deployment-with-serverless-framework). That's where I'll picked up to show how make this deploy "AWS native" with [AWS CDK](https://aws.amazon.com/pt/cdk/). 
+
+Also, we'll change the generation process to Server Side Rendering (SSR) because I failed to make Incremental Static Regeneration  (ISR) work (Pull Requests will be welcomed). In the file `pages/posts/[id].js` replace the code with `getServerSideProps`, so it should look like this:
+
+```javascript
+// pages/posts/[id].js
+import { API, Storage } from 'aws-amplify'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import ReactMarkdown from 'react-markdown'
+import { listPosts, getPost } from '../../graphql/queries'
+
+export default function Post({ post }) {
+
+  const [coverImage, setCoverImage] = useState(null)
+  useEffect(() => {
+    updateCoverImage()
+  }, [])
+  async function updateCoverImage() {
+    if (post?.coverImage) {
+      const imageKey = await Storage.get(post.coverImage)
+      setCoverImage(imageKey)
+    }
+  }
+
+  const router = useRouter()
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
+  return (
+    <div>
+      <h1 className="text-5xl mt-4 font-semibold tracking-wide">{post.title}</h1>
+      {
+        coverImage && <img src={coverImage} className="mt-4" />
+      }
+      <p className="text-sm font-light my-4">by {post.username}</p>
+      <div className="mt-8">
+        <ReactMarkdown className='prose' children={post.content} />
+      </div>
+    </div>
+  )
+}
+
+// This is what we are change, removing getStaticPaths and getStaticProps:
+export async function getServerSideProps({ params }) {
+  const { id } = params
+  const postData = await API.graphql({
+    query: getPost, variables: { id }
+  })
+  return {
+    props: {
+      post: postData.data.getPost
+    }
+  }
+}
+
+```
 
 ## Deployment with the Serverless NextJS CDK Constructor ✨
 
@@ -33,77 +89,42 @@ Then you’ll need to create a `tsconfig.json` in your project because we’ll u
 Your `tsconfig.json` should look like this:
 
 ```json
-
 {
-
-  “compilerOptions”: {
-
+  “compilerOptions”: 
     “alwaysStrict”: true,
-
     “downlevelIteration”: true,
-
     “esModuleInterop”: true,
-
     “forceConsistentCasingInFileNames”: true,
-
     “inlineSourceMap”: true,
-
     “lib”: [
-
       “es2020”
-
     ],
-
     “moduleResolution”: “node”,
-
     “noEmitOnError”: true,
-
     “strict”: true,
-
     “target”: “ES6”,
-
     “skipLibCheck”: true,
-
     “noEmit”: true,
-
     “module”: “commonjs”,
-
     “isolatedModules”: true,
-
     “allowJs”: true,
-
     “resolveJsonModule”: true,
-
     “jsx”: “preserve”
-
   },
-
   “exclude”: [
-
     “node_modules”
-
   ],
-
   “include”: [
-
-    “deploy”
-
-  ]
-
+    “deploy
 }
-
 ```
 
 Not all of this configuration is really needed, but I basically use a boilerplate for all my projects and simply decided to not cherry pick and test every option. Then we need to create special file to CDK pickup about our stack that must be named`cdk.json`:
 
 ```json
-
 {
-
   “app”: “npx ts-node deploy/bin.ts”
-
 }
-
 ```
 
 When later we use `cdk deploy` it will download and run the ts-node utility to run the file `bin.ts` without the hassle of setup compiling _ts_ to _js_.
@@ -113,103 +134,60 @@ Note that before `bin.ts`, this file I mentioned is inside a folder named `deplo
 This folder is where all logic of our CDK Constructor will live. Create the folder `deploy`. We will create two files, `bin.ts` and `stack.ts`. I make a little change to improve my workflow but the official page has an [outstanding example of a minimal setup](https://serverless-nextjs.com/docs/cdkconstruct/).
 
 ```typescript
-
-// bin.ts
-
-import * as cdk from “@aws-cdk/core”;
-
-import { Builder } from “@sls-next/lambda-at-edge”;
-
-import { NextStack } from “./stack”;
-
-const builder = new Builder(“.”, “./build”, {args: [‘build’]});
-
-builder
-
-  .build(true)
-
-  .then(() => {
-
-    const app = new cdk.App();
-
-    new NextStack(app, “NextBlog”, {
-
-      analyticsReporting: true,
-
-      description: “Testing deploying Full Stack Cloud with Next.js, Tailwind, and AWS with ISG”
-
+// deploy/bin.ts
+  constructor(scope: cdk.Construct, id: "NextBlog", props: cdk.StackProps ) {
+    super(scope, id, props);
+    new NextJSLambdaEdge(this, "NextBlog", {
+      serverlessBuildOutDir: "./build",
+      description: `${id} : Functions Lambda@Edge for the application`,
+      cachePolicyName: {
+        staticsCache: `StaticsCache-${id}`,
+        imageCache: `ImageCache-${id}`,
+        lambdaCache: `LambdaCache-${id}`
+      },
+      memory: 1024,
+      name: {
+        imageLambda: `ImageLambda-${id}`,
+        defaultLambda: `DefaultLambda-${id}`,
+        apiLambda: `ApiLambda-${id}`
+      },
+      runtime: Runtime.NODEJS_12_X,
+      withLogging: true, 
     });
-
-  })
-
-  .catch((e) => {
-
-    console.error(e);
-
-    process.exit(1);
-
-  });
-
+  }
+}
 ```
 
 ```typescript
-
-// stack.ts
-
+// deploy/stack.ts
 import * as cdk from “@aws-cdk/core”;
-
 import { Duration } from “@aws-cdk/core”;
-
 import { NextJSLambdaEdge } from “@sls-next/cdk-construct”;
-
 import { Runtime } from “@aws-cdk/aws-lambda”;
 
 export class NextStack extends cdk.Stack {
-
   constructor(scope: cdk.Construct, id: “NextBlog”, props: cdk.StackProps ) {
-
     super(scope, id, props);
-
     new NextJSLambdaEdge(this, “NextBlog”, {
-
       serverlessBuildOutDir: “./build”,
-
       cachePolicyName: {
-
         staticsCache: `StaticsCache-${id}`,
-
         imageCache: `ImageCache-${id}`,
-
         lambdaCache: `LambdaCache-${id}`
-
       },
-
+      description: `${id} : Functions Lambda@Edge for the application`,
       memory: 1024,
-
       name: {
-
         imageLambda: `ImageLambda-${id}`,
-
         defaultLambda: `DefaultLambda-${id}`,
-
         apiLambda: `ApiLambda-${id}`
-
       },
-
       runtime: Runtime.NODEJS_12_X,
-
       timeout: Duration.seconds(30),
-
       withLogging: true,
-
-      
-
     });
-
   }
-
 }
-
 ```
 
 As you can see above, I use the variable id from the constructor in several places. I make this way in order for each stack to have a unique name. Before, without those options, if you wanted to deploy a second application probably your deploy would fail because the names of the functions and for the policy caches would collide. This way we keep separated. I other fields to tweak the lambda.
@@ -217,11 +195,8 @@ As you can see above, I use the variable id from the constructor in several plac
 Run `cdk deploy` at the root of your folder, avail the artefacts and services created. Once you accept you will see the logs of CloudFormation until the creation is complete and your terminal should display this:
 
 ```bash
-
 [100%] success: Published
-
 ********
-
 NextBlog: creating CloudFormation changeset...
 
 [████████████████████████████████████████████████████▏·····] (18/20)
@@ -229,7 +204,6 @@ NextBlog: creating CloudFormation changeset...
  ✅  NextBlog
 
 Stack ARN:
-
 *******
 
 ```

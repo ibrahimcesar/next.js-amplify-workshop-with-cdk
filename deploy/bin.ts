@@ -10,7 +10,7 @@ builder
     const app = new cdk.App();
     new NextStack(app, "NextBlog", {
       analyticsReporting: true,
-      description: "Testing deploying Full Stack Cloud with Next.js, Tailwind, and AWS with ISG"
+      description: "Testing deploying Full Stack Cloud with Next.js, Tailwind, and AWS CDK with SSR"
     });
   })
   .catch((e) => {

@@ -5,12 +5,13 @@ import ReactMarkdown from 'react-markdown'
 import { listPosts, getPost } from '../../graphql/queries'
 
 export default function Post({ post }) {
+
   const [coverImage, setCoverImage] = useState(null)
   useEffect(() => {
     updateCoverImage()
   }, [])
   async function updateCoverImage() {
-    if (post.coverImage) {
+    if (post?.coverImage) {
       const imageKey = await Storage.get(post.coverImage)
       setCoverImage(imageKey)
     }
@@ -34,27 +35,15 @@ export default function Post({ post }) {
   )
 }
 
-export async function getStaticPaths() {
-  const postData = await API.graphql({
-    query: listPosts
-  })
-  const paths = postData.data.listPosts.items.map(post => ({ params: { id: post.id }}))
-  return {
-    paths,
-    fallback: true
-  }
-}
 
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   const { id } = params
   const postData = await API.graphql({
     query: getPost, variables: { id }
   })
   return {
     props: {
-      post: postData.data.getPost,
-      revalidate: 1
+      post: postData.data.getPost
     }
   }
 }
-
