@@ -247,17 +247,15 @@ npm install --save-dev aws-cdk typescript
 
 * [typescript](https://www.npmjs.com/package/typescript) TypeScript itself need after the `aws-cdk` install.
 
-With this you can edit your `package.json`:
+With this you can edit your `package.json` on the `scripts` options:
 
 ```json
-
-“scripts”: {
-    “dev”: “next dev”,
-    “build”: “next build”,
-    “start”: “next start”,
-    “deploy”: “cdk deploy --profile pessoal”
- }
-
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "deploy": "cdk deploy --profile pessoal"
+  }
 ```
 
 So you’ll only need run the script `npm run deploy`, which helps to automatize pipelines and other uses.
