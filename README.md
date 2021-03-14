@@ -236,7 +236,7 @@ Stack ARN:
 
 If not, something is wrong somewhere. If the code even uploaded your assets, the problem is in the application / settings and if you be one of us that faces the “RED ROLLBACK OF THE SOUL” from CloudFormation that has very little information about the error, sometimes just where. But you can always checkup the CloudTrail in you account and look out for the errors and you’ll have a clear picture of what is going wrong.
 
-You can open an issue. You may never answear – MIT is "as is".
+You can open an issue as you wish. I may never answear if I wish – MIT is "as is".
 
 ### Important Notes 📝
 
