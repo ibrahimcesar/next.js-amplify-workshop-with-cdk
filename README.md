@@ -1,6 +1,6 @@
 # Full Stack Cloud with Next.js, Tailwin, and AWS CDK
 
-## First things first
+## First things first 🌟
 
 Most of the work here was created by [Nader Dabit](https://twitter.com/dabit3) and you definitely should checkout the [video for this workshop](https://www.youtube.com/watch?v=13nYLmjZ0Ys) and the [repo with a step by step guide](https://github.com/dabit3/next.js-amplify-workshop). You'll learn a lot! 
 
@@ -8,7 +8,7 @@ I highly recommend [follow along the video](https://www.youtube.com/watch?v=13nY
 
 Stop at [Deployment with Serverless Framework](https://github.com/dabit3/next.js-amplify-workshop#deployment-with-serverless-framework). That's where I'll picked up to show how make this deploy "AWS native" with [AWS CDK](https://aws.amazon.com/pt/cdk/).
 
-## Deployment with the Serverless NextJS CDK Constructor
+## Deployment with the Serverless NextJS CDK Constructor ✨
 
 To deploy to AWS with the [Serverless NextJS CDK Constructor](https://serverless-nextjs.com/docs/cdkconstruct/) we’ll need to set up first some things. First you will need to install the CDK CLI and then bootstrap the CDK in your account.
 
@@ -238,7 +238,7 @@ If not, something is wrong somewhere. If the code even uploaded your assets, the
 
 You can open an issue. You may never answear – MIT is "as is".
 
-### Notes
+### Important Notes 📝
 
 * Even the runtime Node_14_X, at the time this runtime was not available to Lambda@Edge where your lambdas will be built.
 
@@ -252,11 +252,13 @@ You can open an issue. You may never answear – MIT is "as is".
 
 ### See yourself
 
-* [Live demo](https://d1zk2p0o1jgic1.cloudfront.net/) – Honestly I don’t know how much time I’ll keep online, since I can wake up tomorrow with gigas of porn in my S3 buckets, but I’ll give the trust that the Dev and the AWS Builders community inspires in me and that the very few people who’ll visit are nice people and we’ll leave the project clean.
+* 🖼️ [Live demo](https://d1zk2p0o1jgic1.cloudfront.net/) – Honestly I don’t know how much time I’ll keep online, since I can wake up tomorrow with gigas of porn in my S3 buckets, but I’ll give the trust that the Dev and the AWS Builders community inspires in me and that the very few people who’ll visit are nice people and we’ll leave the project clean.
 
-* [Repo](https://github.com/ibrahimcesar/next.js-amplify-workshop-with-cdk) Yes, no linter, no rules. Proof of Concept should be quick and dirt (I mean in the code, just in the code!).
+* 🗄️ [Repo](https://github.com/ibrahimcesar/next.js-amplify-workshop-with-cdk) Yes, no linter, no rules. Proof of Concept should be quick and dirt (I mean in the code, just in the code!).
 
-### Extra points
+* ⚠️ To avoid any costs if you are just testing, remember to [remove all services](https://github.com/dabit3/next.js-amplify-workshop#removing-services).
+
+### Extra points 💰
 
 If you want to go a mile more, you can setup a npm script to deploy for you. You will need to install as dev dependencies:
 
@@ -293,7 +295,7 @@ So you’ll only need run the script `npm run deploy`, which helps to automatize
 In the example above the option `--profile` points my CDK to use a set of credentials I place in my machine with this label `pessoal` which is the same as `personal` in English, since this demo I’m creating in my spare time and for self improvement.
 
 ## Thanks!
-[Nader Dabit](https://github.com/dabit3) and the [awesome and incredible AWS Amplify team](https://docs.amplify.aws/).
+[Nader Dabit](https://github.com/dabit3) and the [awesome and incredible AWS Amplify team](https://docs.amplify.aws/). I’m a huge fan of the work from [Nader Dabit](https://twitter.com/dabit3), which is the author of [Full Stack Serverless](https://www.amazon.com/Full-Stack-Serverless-Application-Development/dp/1492059897) – one concept I more and more identify myself.  
 [Serverless Nextjs CDK construct](https://serverless-nextjs.com/docs/cdkconstruct/), in special [Henry Kirkness](https://github.com/kirkness) and 
 [Daniel Phang](https://github.com/dphang) for all work at [this feature](https://github.com/serverless-nextjs/serverless-next.js/pull/878).
 ### MIT License
