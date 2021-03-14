@@ -1,4 +1,4 @@
-# Full Stack Cloud with Next.js, Tailwin, and AWS CDK
+# Full Stack Cloud SSR with Next.js, Tailwin, and AWS CDK
 
 ## First things first 🌟
 
@@ -90,32 +90,33 @@ Your `tsconfig.json` should look like this:
 
 ```json
 {
-  “compilerOptions”: 
-    “alwaysStrict”: true,
-    “downlevelIteration”: true,
-    “esModuleInterop”: true,
-    “forceConsistentCasingInFileNames”: true,
-    “inlineSourceMap”: true,
-    “lib”: [
-      “es2020”
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSourceMap": true,
+    "lib": [
+      "es2020"
     ],
-    “moduleResolution”: “node”,
-    “noEmitOnError”: true,
-    “strict”: true,
-    “target”: “ES6”,
-    “skipLibCheck”: true,
-    “noEmit”: true,
-    “module”: “commonjs”,
-    “isolatedModules”: true,
-    “allowJs”: true,
-    “resolveJsonModule”: true,
-    “jsx”: “preserve”
+    "moduleResolution": "node",
+    "noEmitOnError": true,
+    "strict": true,
+    "target": "ES6",
+    "skipLibCheck": true,
+    "noEmit": true,
+    "module": "commonjs",
+    "isolatedModules": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve"
   },
-  “exclude”: [
-    “node_modules”
+  "exclude": [
+    "node_modules"
   ],
-  “include”: [
-    “deploy
+  "include": [
+    "deploy"
+  ]
 }
 ```
 
@@ -123,7 +124,7 @@ Not all of this configuration is really needed, but I basically use a boilerplat
 
 ```json
 {
-  “app”: “npx ts-node deploy/bin.ts”
+  "app": "npx ts-node deploy/bin.ts"
 }
 ```
 
@@ -246,17 +247,15 @@ npm install --save-dev aws-cdk typescript
 
 * [typescript](https://www.npmjs.com/package/typescript) TypeScript itself need after the `aws-cdk` install.
 
-With this you can edit your `package.json`:
+With this you can edit your `package.json` on the `scripts` options:
 
 ```json
-
-“scripts”: {
-    “dev”: “next dev”,
-    “build”: “next build”,
-    “start”: “next start”,
-    “deploy”: “cdk deploy --profile pessoal”
- }
-
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "deploy": "cdk deploy --profile pessoal"
+  }
 ```
 
 So you’ll only need run the script `npm run deploy`, which helps to automatize pipelines and other uses.
