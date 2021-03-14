@@ -67,7 +67,7 @@ function EditPost() {
   return (
     <div>
       <h1 className="text-3xl font-semibold tracking-wide mt-6 mb-2">Edit post</h1>
-       <p>🙇‍♂️ And remember: Be kind, post catto, doggos, squirrels and weasels and other great things, but let's keep SFE (Safe For Everyone). Let's have a nice thing here!</p>
+      <p>🙇‍♂️ And remember: Be kind, post catto, doggos, squirrels and weasels and other great things, but let's keep SFE (Safe For Everyone). Let's have a nice thing here!</p>
       {
         coverImage && <img src={localImage ? localImage : coverImage} className="mt-4" />
       }

@@ -1,34 +1,307 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Full Stack Cloud with Next.js, Tailwin, and AWS CDK
 
-## Getting Started
+## First things first
 
-First, run the development server:
+Most of the work here was created by [Nader Dabit](https://twitter.com/dabit3) and you definitely should checkout the [video for this workshop](https://www.youtube.com/watch?v=13nYLmjZ0Ys) and the [repo with a step by step guide](https://github.com/dabit3/next.js-amplify-workshop). You'll learn a lot! 
+
+I highly recommend [follow along the video](https://www.youtube.com/watch?v=13nYLmjZ0Ys) and [checkout the repository with all the code and a very complete descriptions step by step](https://github.com/dabit3/next.js-amplify-workshop), introducing to Amplify, NextJS and several other products/ tools / managed services like AppSync and Cognito.
+
+Stop at [Deployment with Serverless Framework](https://github.com/dabit3/next.js-amplify-workshop#deployment-with-serverless-framework). That's where I'll picked up to show how make this deploy "AWS native" with [AWS CDK](https://aws.amazon.com/pt/cdk/).
+
+## Deployment with the Serverless NextJS CDK Constructor
+
+To deploy to AWS with the [Serverless NextJS CDK Constructor](https://serverless-nextjs.com/docs/cdkconstruct/) we’ll need to set up first some things. First you will need to install the CDK CLI and then bootstrap the CDK in your account.
+
+Then we’ll install some dev dependencies, only used in your machine to generate and deploy the assets.
 
 ```bash
-npm run dev
-# or
-yarn dev
+
+npm install --save-dev @aws-cdk/core @sls-next/lambda-at-edge @sls-next/cdk-construct @aws-cdk/aws-lambda
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* [@aws-cdk/core](https://www.npmjs.com/package/@aws-cdk/core): This library includes the basic building blocks of the AWS Cloud Development Kit (AWS CDK). It defines the core classes that are used in the rest of the AWS Construct Library.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+* [@aws-cdk/aws-lambda](https://www.npmjs.com/package/@aws-cdk/aws-lambda) This construct library allows you to define AWS Lambda Functions.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+* [@sls-next/cdk-construct](https://www.npmjs.com/package/@sls-next/cdk-construct) It is very important you have on your package the [@sls-next/serverless-component@1.19.0-alpha.37](https://github.com/serverless-nextjs/serverless-next.js/releases/tag/%40sls-next%2Fserverless-component%401.19.0-alpha.37) version where the options to name the cache policies where added. If is not the above or greater, then please editthe version in your package and run `npm install`
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+* [@sls-next/lambda-at-edge](https://www.npmjs.com/package/@sls-next/lambda-at-edge) AWS Lambda@Edge library to help you deploy serverless next.js applications to CloudFront
 
-## Learn More
+Then you’ll need to create a `tsconfig.json` in your project because we’ll use TypeScript (yes, in a JavaScript project, but only to allow the usage in the folder deploy that we’ll create.
 
-To learn more about Next.js, take a look at the following resources:
+Your `tsconfig.json` should look like this:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```json
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+{
 
-## Deploy on Vercel
+  “compilerOptions”: {
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    “alwaysStrict”: true,
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+    “downlevelIteration”: true,
+
+    “esModuleInterop”: true,
+
+    “forceConsistentCasingInFileNames”: true,
+
+    “inlineSourceMap”: true,
+
+    “lib”: [
+
+      “es2020”
+
+    ],
+
+    “moduleResolution”: “node”,
+
+    “noEmitOnError”: true,
+
+    “strict”: true,
+
+    “target”: “ES6”,
+
+    “skipLibCheck”: true,
+
+    “noEmit”: true,
+
+    “module”: “commonjs”,
+
+    “isolatedModules”: true,
+
+    “allowJs”: true,
+
+    “resolveJsonModule”: true,
+
+    “jsx”: “preserve”
+
+  },
+
+  “exclude”: [
+
+    “node_modules”
+
+  ],
+
+  “include”: [
+
+    “deploy”
+
+  ]
+
+}
+
+```
+
+Not all of this configuration is really needed, but I basically use a boilerplate for all my projects and simply decided to not cherry pick and test every option. Then we need to create special file to CDK pickup about our stack that must be named`cdk.json`:
+
+```json
+
+{
+
+  “app”: “npx ts-node deploy/bin.ts”
+
+}
+
+```
+
+When later we use `cdk deploy` it will download and run the ts-node utility to run the file `bin.ts` without the hassle of setup compiling _ts_ to _js_.
+
+Note that before `bin.ts`, this file I mentioned is inside a folder named `deploy`. But you could name whatever you want, just remember to change in the `cdk.json`.
+
+This folder is where all logic of our CDK Constructor will live. Create the folder `deploy`. We will create two files, `bin.ts` and `stack.ts`. I make a little change to improve my workflow but the official page has an [outstanding example of a minimal setup](https://serverless-nextjs.com/docs/cdkconstruct/).
+
+```typescript
+
+// bin.ts
+
+import * as cdk from “@aws-cdk/core”;
+
+import { Builder } from “@sls-next/lambda-at-edge”;
+
+import { NextStack } from “./stack”;
+
+const builder = new Builder(“.”, “./build”, {args: [‘build’]});
+
+builder
+
+  .build(true)
+
+  .then(() => {
+
+    const app = new cdk.App();
+
+    new NextStack(app, “NextBlog”, {
+
+      analyticsReporting: true,
+
+      description: “Testing deploying Full Stack Cloud with Next.js, Tailwind, and AWS with ISG”
+
+    });
+
+  })
+
+  .catch((e) => {
+
+    console.error(e);
+
+    process.exit(1);
+
+  });
+
+```
+
+```typescript
+
+// stack.ts
+
+import * as cdk from “@aws-cdk/core”;
+
+import { Duration } from “@aws-cdk/core”;
+
+import { NextJSLambdaEdge } from “@sls-next/cdk-construct”;
+
+import { Runtime } from “@aws-cdk/aws-lambda”;
+
+export class NextStack extends cdk.Stack {
+
+  constructor(scope: cdk.Construct, id: “NextBlog”, props: cdk.StackProps ) {
+
+    super(scope, id, props);
+
+    new NextJSLambdaEdge(this, “NextBlog”, {
+
+      serverlessBuildOutDir: “./build”,
+
+      cachePolicyName: {
+
+        staticsCache: `StaticsCache-${id}`,
+
+        imageCache: `ImageCache-${id}`,
+
+        lambdaCache: `LambdaCache-${id}`
+
+      },
+
+      memory: 1024,
+
+      name: {
+
+        imageLambda: `ImageLambda-${id}`,
+
+        defaultLambda: `DefaultLambda-${id}`,
+
+        apiLambda: `ApiLambda-${id}`
+
+      },
+
+      runtime: Runtime.NODEJS_12_X,
+
+      timeout: Duration.seconds(30),
+
+      withLogging: true,
+
+      
+
+    });
+
+  }
+
+}
+
+```
+
+As you can see above, I use the variable id from the constructor in several places. I make this way in order for each stack to have a unique name. Before, without those options, if you wanted to deploy a second application probably your deploy would fail because the names of the functions and for the policy caches would collide. This way we keep separated. I other fields to tweak the lambda.
+
+Run `cdk deploy` at the root of your folder, avail the artefacts and services created. Once you accept you will see the logs of CloudFormation until the creation is complete and your terminal should display this:
+
+```bash
+
+[100%] success: Published
+
+********
+
+NextBlog: creating CloudFormation changeset...
+
+[████████████████████████████████████████████████████▏·····] (18/20)
+
+ ✅  NextBlog
+
+Stack ARN:
+
+*******
+
+```
+
+If not, something is wrong somewhere. If the code even uploaded your assets, the problem is in the application / settings and if you be one of us that faces the “RED ROLLBACK OF THE SOUL” from CloudFormation that has very little information about the error, sometimes just where. But you can always checkup the CloudTrail in you account and look out for the errors and you’ll have a clear picture of what is going wrong.
+
+You can open an issue. You may never answear – MIT is "as is".
+
+### Notes
+
+* Even the runtime Node_14_X, at the time this runtime was not available to Lambda@Edge where your lambdas will be built.
+
+* If you pay attention the `serverlessBuildOutDir` prop points to `build`. The default for NextJS is to build in `.next`. But you don’t need to change, in fact, did not change. The Construct will take care of create a production optimized bundle in the folder.
+
+* **Why waste so much time?!?!**, the other solution take 2 lines and zero-config. Yeah, but in my real use cases our applications need to be in TypeScript so have our IaC in CDK will keep the cognitive load at the same level and we’ll not need to handle specific configurations. Also, this app could be only one piece of several other constructors and it will play little nice with the same tooling. 
+
+* If you need to deploy over one stack, you’ll need to use the options `cachePolicyName` and `name`, but you can call whatever you want. just try to have a pattern, always help later to gather data, debugging and stuff. And remeber that must be unique!
+
+* Remember that the time of the writing, this is an experimental feature, in alpha.
+
+### See yourself
+
+* [Live demo](https://d1zk2p0o1jgic1.cloudfront.net/) – Honestly I don’t know how much time I’ll keep online, since I can wake up tomorrow with gigas of porn in my S3 buckets, but I’ll give the trust that the Dev and the AWS Builders community inspires in me and that the very few people who’ll visit are nice people and we’ll leave the project clean.
+
+* [Repo](https://github.com/ibrahimcesar/next.js-amplify-workshop-with-cdk) Yes, no linter, no rules. Proof of Concept should be quick and dirt (I mean in the code, just in the code!).
+
+### Extra points
+
+If you want to go a mile more, you can setup a npm script to deploy for you. You will need to install as dev dependencies:
+
+```bash
+
+npm install --save-dev aws-cdk typescript
+
+```
+
+* [aws-cdk](https://www.npmjs.com/package/aws-cdk) – The AWS CDK Toolkit provides the `cdk` command-line interface that can be used to work with AWS CDK applications.
+
+* [typescript](https://www.npmjs.com/package/typescript) TypeScript itself need after the `aws-cdk` install.
+
+With this you can edit your `package.json`:
+
+```json
+
+“scripts”: {
+
+    “dev”: “next dev”,
+
+    “build”: “next build”,
+
+    “start”: “next start”,
+
+    “deploy”: “cdk deploy --profile pessoal”
+
+ }
+
+```
+
+So you’ll only need run the script `npm run deploy`, which helps to automatize pipelines and other uses.
+
+In the example above the option `--profile` points my CDK to use a set of credentials I place in my machine with this label `pessoal` which is the same as `personal` in English, since this demo I’m creating in my spare time and for self improvement.
+
+## Thanks!
+[Nader Dabit](https://github.com/dabit3) and the [awesome and incredible AWS Amplify team](https://docs.amplify.aws/).
+[Serverless Nextjs CDK construct](https://serverless-nextjs.com/docs/cdkconstruct/), in special [Henry Kirkness](https://github.com/kirkness) and 
+[Daniel Phang](https://github.com/dphang) for all work at [this feature](https://github.com/serverless-nextjs/serverless-next.js/pull/878).
+### MIT License
+ 
+© Copyright 2021 [Ibrahim Cesar](https://ibrahimcesar.cloud)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

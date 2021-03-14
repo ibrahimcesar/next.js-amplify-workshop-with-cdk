@@ -1,4 +1,3 @@
-
 {
   "app": "npx ts-node deploy/bin.ts"
 }
