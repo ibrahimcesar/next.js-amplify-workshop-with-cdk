@@ -15,7 +15,7 @@ export default function Post({ post }) {
       setCoverImage(imageKey)
     }
   }
-  console.log('post: ', post)
+
   const router = useRouter()
   if (router.isFallback) {
     return <div>Loading...</div>
@@ -45,14 +45,15 @@ export async function getStaticPaths() {
   }
 }
 
-export async function getStaticProps ({ params }) {
+export async function getStaticProps({ params }) {
   const { id } = params
   const postData = await API.graphql({
     query: getPost, variables: { id }
   })
   return {
     props: {
-      post: postData.data.getPost
+      post: postData.data.getPost,
+      revalidate: 1
     }
   }
 }
