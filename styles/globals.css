@@ -7,3 +7,7 @@
   --amplify-primary-tint: #2563eb;
   --amplify-primary-shade: #2563eb;
 }
+
+footer a {
+  text-decoration: underline;
+}

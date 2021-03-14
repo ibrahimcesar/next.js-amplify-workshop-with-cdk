@@ -47,7 +47,10 @@ function MyApp({ Component, pageProps }) {
     </nav>
     <div className="py-8 px-16">
       <Component {...pageProps} />
-    </div>
+      </div>
+      <footer className="p-6 border-t border-gray-300">
+        <p>Made with <a href="https://docs.amplify.aws/" target="_blank" rel="noopener noreferrer" style={{color: "#ff9900"}}><b>Amplify</b></a>, <a href="https://nextjs.org/" target="_blank" rel="noopener noreferrer"><b>Next.JS</b></a> based on the workshop from <a href="https://twitter.com/dabit3" target="_blank" rel="noopener noreferrer" style={{color: "#2563eb"}}><b>Nader Dabit</b></a> by <a href="https://ibrahimcesar.cloud" target="_blank" rel="noopener noreferrer" style={{color: "#e66533"}}><b>Ibrahim Cesar</b></a> from 🇧🇷</p>
+      </footer>
   </div>
   )
 }
