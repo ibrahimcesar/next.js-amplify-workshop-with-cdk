@@ -64,7 +64,7 @@ export async function getServerSideProps({ params }) {
 
 ```
 
-## Deployment with the Serverless NextJS CDK Constructor ✨
+## Deployment with the Serverless NextJS CDK Construct ✨
 
 To deploy to AWS with the [Serverless NextJS CDK Constructor](https://serverless-nextjs.com/docs/cdkconstruct/) we’ll need to set up first some things. First you will need to install the CDK CLI and then bootstrap the CDK in your account.
 
@@ -132,7 +132,7 @@ When later we use `cdk deploy` it will download and run the ts-node utility to r
 
 Note that before `bin.ts`, this file I mentioned is inside a folder named `deploy`. But you could name whatever you want, just remember to change in the `cdk.json`.
 
-This folder is where all logic of our CDK Constructor will live. Create the folder `deploy`. We will create two files, `bin.ts` and `stack.ts`. I make a little change to improve my workflow but the official page has an [outstanding example of a minimal setup](https://serverless-nextjs.com/docs/cdkconstruct/).
+This folder is where all logic of our CDK Construct will live. Create the folder `deploy`. We will create two files, `bin.ts` and `stack.ts`. I make a little change to improve my workflow but the official page has an [outstanding example of a minimal setup](https://serverless-nextjs.com/docs/cdkconstruct/).
 
 ```typescript
 // deploy/bin.ts
@@ -219,7 +219,7 @@ You can open an issue as you wish. I may never answear if I wish – MIT is "as 
 
 * If you pay attention the `serverlessBuildOutDir` prop points to `build`. The default for NextJS is to build in `.next`. But you don’t need to change, in fact, did not change. The Construct will take care of create a production optimized bundle in the folder.
 
-* **Why waste so much time?!?!**, the other solution take 2 lines and zero-config. Yeah, but in my real use cases our applications need to be in TypeScript so have our IaC in CDK will keep the cognitive load at the same level and we’ll not need to handle specific configurations. Also, this app could be only one piece of several other constructors and it will play little nice with the same tooling. Also no YAML chaos magic and type safety.
+* **Why waste so much time?!?!**, the other solution take 2 lines and zero-config. Yeah, but in my real use cases our applications need to be in TypeScript so have our IaC in CDK will keep the cognitive load at the same level and we’ll not need to handle specific configurations. Also, this app could be only one piece of several other constructs and it will play little nice with the same tooling. Also no YAML chaos magic and type safety.
 
 * If you need to deploy over one stack, you’ll need to use the options `cachePolicyName` and `name`, but you can call whatever you want. just try to have a pattern, always help later to gather data, debugging and stuff. And remember that must be unique!
 
